@@ -1,0 +1,4 @@
+<your API token>
+cardano-mainnet.blockfrost.io
+/api/v0/addresses/
+/api/v0/accounts/

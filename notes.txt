@@ -1,0 +1,51 @@
+{- Notes -}
+
+minimalMaybeTFunc :: MaybeT IO String -- IO (Maybe String)
+minimalMaybeTFunc = MaybeT $ return $ Just "0"
+
+creatingMaybeTFunc :: MaybeT IO String -- IO (Maybe String)
+creatingMaybeTFunc = MaybeT (
+        putStrLn "print" >>= (\_ ->
+            getChar >>= (\c ->
+                if c == 'a'
+                    then return $ Just "0"
+                    else return Nothing))
+    )
+
+creatingMaybeTFuncDo :: MaybeT IO String -- IO (Maybe String)
+creatingMaybeTFuncDo = MaybeT $ do
+    putStrLn "print"
+    c <- getChar
+    if c == 'a'
+        then return $ Just "0"
+        else return Nothing
+
+usingMaybeTFunc :: IO ()
+usingMaybeTFunc = do
+    content <- runMaybeT creatingMaybeTFuncDo
+    case content of
+        Nothing -> putStrLn "Nothing"
+        Just c  -> putStrLn c
+
+minimalReaderTFunc :: ReaderT APIConfig IO String -- APIConfig -> IO String
+minimalReaderTFunc = ReaderT (\config -> return "0")
+
+creatingReaderTFunc :: ReaderT APIConfig IO String -- APIConfig -> IO String
+creatingReaderTFunc = ReaderT (\config ->
+        putStrLn "print" >>= (\_ ->
+            return $ BC.unpack (apiKey config))
+    )
+
+creatingReaderTFuncDo :: ReaderT APIConfig IO String -- APIConfig -> IO String
+creatingReaderTFuncDo = ReaderT (\config -> do
+    putStrLn "print"
+    return $ BC.unpack (apiKey config))
+
+usingReaderTFuncDo :: IO ()
+usingReaderTFuncDo = do
+    config <- loadConfig
+    runReaderT creatingReaderTFuncDo config
+    putStrLn "done"
+
+readerMaybeTFunc :: ReaderT APIConfig (MaybeT IO) String -- APIConfig -> MaybeT IO String
+readerMaybeTFunc = ReaderT (\config -> MaybeT $ return $ Just "0")
